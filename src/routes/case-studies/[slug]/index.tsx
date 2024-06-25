@@ -9,7 +9,7 @@ import { customComponents } from "~/components/gallery/gallery";
 
 // Define Builder's public API key and content model.
 // TO DO: Replace with your Public API Key
-export const BUILDER_PUBLIC_API_KEY = "caf6a3c484dc48e69f4f569fcca3cf36";
+export const BUILDER_PUBLIC_API_KEY = "7b1221f52afb4451b0f7b41c9b94d1a8";
 export const BUILDER_MODEL = "portfolio";
 
 // Define a route loader function that loads
