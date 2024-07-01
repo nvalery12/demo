@@ -1,49 +1,70 @@
 // Esta es la vista Home
 import {
   component$,
-  // useResource$,
-  useStore,
   useStylesScoped$,
   // useTask$,
-  useVisibleTask$,
+  useVisibleTask$
 } from "@builder.io/qwik";
 import { inlineTranslate } from "qwik-speak";
 // import { isServer, isBrowser } from "@builder.io/qwik/build";
-import { type DocumentHead } from "@builder.io/qwik-city";
+import { routeLoader$, type DocumentHead } from "@builder.io/qwik-city";
 // import AnimatedQuote from "~/components/animated-quote/animated-quote";
 import DesktopServices from "~/components/desktop-services/desktop-services";
-import ExpandableServices from "~/components/expandable-services/expandable-services";
+// import ExpandableServices from "~/components/expandable-services/expandable-services";
 import OpentechButton from "~/components/ot-button/ot-button";
 import {
   TestimonialSwiper,
   Testimonio,
 } from "~/integrations/react/testimonials";
-import CaseStudies from "~/components/case-studies-home/case-studies";
-import ImgBannerPrincipal from "../assets/img/banner-principal.webp?jsx";
-import ImgMobileHomeBanner from "../assets/img/mobile-home-banner.webp?jsx";
-import Marquee from "../components/marquee/marquee-home";
-import ImgOtArrow from "../assets/svg/ot-arrow.svg?jsx";
+// import CaseStudies from "~/components/case-studies-home/case-studies";
+import Marquee from "~/components/marquee/marquee-home";
+import { PortfolioSwiper } from "~/integrations/react/portafolio-swiper";
+import ImgBannerPrincipal from "../../assets/img/banner-principal.webp?jsx";
+import ImgMobileHomeBanner from "../../assets/img/mobile-home-banner.webp?jsx";
+import ImgOtArrow from "../../assets/svg/ot-arrow.svg?jsx";
 import styles from "./index.css?inline";
 // import * as libreria from "@builder.io/qwik-city";
 import ScrollReveal from "scrollreveal";
 import LottieLoader from "~/components/lottie-loader/lottie-loader";
+import TripleMarquee from "~/components/marquee/triple-marquee";
 import Typewrite from "~/components/typewrite/typewrite";
-import bannerMobileLottie from "../assets/animations/banner-movil.json";
-import bannerLottie from "../assets/animations/banner.json";
-import embudoDesktop from "../assets/animations/embudo-desktop-english.json";
-import embudoMobile from "../assets/animations/embudo-mobile-english.json";
-import TripleMarquee from "../components/marquee/triple-marquee";
+import bannerMobileLottie from "../../assets/animations/banner-movil.json";
+import bannerLottie from "../../assets/animations/banner.json";
+import embudoDesktop from "../../assets/animations/embudo-desktop-english.json";
+import embudoMobile from "../../assets/animations/embudo-mobile-english.json";
 // import ImgPill from "../assets/img/pill-img.webp?jsx";
-import ImgIgGreen from "../assets/svg/ig-green.svg?jsx";
-import { data } from "~/data/services";
+import ImgIgGreen from "../../assets/svg/ig-green.svg?jsx";
+// import { data } from "~/data/services";
 import ExpandableSection from "~/components/expandable-section/expandable-section";
 // import ImgIgWhite from "../assets/svg/ig-white.svg?jsx";
 
 // import ImgChatAnimation from '../assets/animations/chat-animation.gif?jsx';
 
+
+export const BUILDER_PUBLIC_API_KEY = import.meta.env.PUBLIC_BUILDER_API_KEY;
+export const BUILDER_MODEL = "portfolio";
+
+export const useQuery = routeLoader$(async () => {
+  const { results } = await fetch(
+    `https://cdn.builder.io/api/v3/content/${BUILDER_MODEL}?apiKey=${BUILDER_PUBLIC_API_KEY}&limit=0`
+  ).then((res) => res.json());
+  const data = results;
+  const portfolios = data.map((elem: any) => ({
+    title: elem.data.title['Default'],
+    description: elem.data.description,
+    featuredImage: elem.data.featuredImage,
+    link: elem.data.url,
+    tags: elem.data?.tags,
+  }));
+
+  return portfolios;
+});
+
 export default component$(() => {
+
   useStylesScoped$(styles);
   const t = inlineTranslate();
+  const portfolios = useQuery().value;
   // const fd = useFormatDate();
   // const fn = useFormatNumber();
   const testimonialGabriela = t(
@@ -336,7 +357,7 @@ export default component$(() => {
         {/* Desktop version */}
         <div
           id="somos-opentech-text"
-          class="pt-20 hidden max-w-[1290px] mx-auto lg:flex flex-row "
+          class="pt-20 hidden max-w-[1290px] mx-auto lg:flex flex-row lg:pb-[68px]"
         >
           <div class="text-ot-white w-4/6">
             <div class="flex flex-row text-xs items-center">
@@ -436,7 +457,8 @@ export default component$(() => {
         <p class="mb-10 mt-16 lg:ml-32 text-center lg:text-left font-bold text-lg lg:text-4xl">
           {t("home.studyCaseTitle@@Algunos de nuestros proyectos realizados")}
         </p>
-        <CaseStudies />
+        {/* <CaseStudies /> */}
+        <PortfolioSwiper portfolios={portfolios}/>
       </div>
     </div>
   );

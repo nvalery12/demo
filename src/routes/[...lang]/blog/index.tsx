@@ -1,119 +1,87 @@
 import {
   component$,
+  useContext,
+  useStore,
   // Resource,
   // useResource$,
   useStylesScoped$,
-  useContext,
   useTask$,
   useVisibleTask$,
-  useStore,
 } from "@builder.io/qwik";
-import styles from "./blog.css?inline"; // Archivo .css correspondiente del componente
 import BlogpostThumbnail from "~/components/blogpost-thumbnail/blogpost-thumbnail";
+import styles from "./blog.css?inline"; // Archivo .css correspondiente del componente
 // import BlogLoadingTemplate from "~/components/blog-loading-template";
 // import axios from "axios";
-import ImgDropdownIcon from "../../assets/svg/dropdown-icon.svg?jsx";
-import ImgSearchIcon from "../../assets/svg/search-icon.svg?jsx";
+// import ImgDropdownIcon from "../../assets/svg/dropdown-icon.svg?jsx";
 import Pagination from "~/components/blog-pagination/pagination";
-import { BlogInterface } from "~/interfaces";
 import { BlogContext } from "~/context";
-import ScrollReveal from "scrollreveal";
+import { BlogInterface } from "~/interfaces";
+import ImgSearchIcon from "../../../assets/svg/search-icon.svg?jsx";
+// import ScrollReveal from "scrollreveal";
 // import { ApolloClient, InMemoryCache } from "@apollo/client";
 // import { baseUrl } from "~/api/constants";
 // import { gql } from "@apollo/client";
 import { DocumentHead, routeLoader$ } from "@builder.io/qwik-city";
 import { inlineTranslate } from "qwik-speak";
 
+export const BUILDER_PUBLIC_API_KEY = import.meta.env.PUBLIC_BUILDER_API_KEY;
+export const BUILDER_MODEL = "blog-page";
+
 // export const client = new ApolloClient({
 //   uri: `https://webapi.lccopen.tech/graphql`,
 //   cache: new InMemoryCache(),
 // });
 
-// export const useQuery = routeLoader$(async () => {
-//   const { data } = await client.query({
-//     query: gql`
-//       query BlogPosts {
-//         posts {
-//           nodes {
-//             id
-//             featuredImage {
-//               node {
-//                 guid
-//               }
-//             }
-//             content(format: RENDERED)
-//             slug
-//             title(format: RENDERED)
-//             date
-//             tags {
-//               nodes {
-//                 name
-//               }
-//             }
-//           }
-//         }
-//       }
-//     `,
-//   });
-//   const blogPosts: BlogInterface[] = data.posts.nodes.map((elem: any) => ({
-//     title: elem.title,
-//     description: elem.content,
-//     featuredImage: elem.featuredImage.node.guid,
-//     postSlug: elem.slug,
-//     tags: elem.tags.nodes.map((tag: any) => tag.name),
-//   }));
-
-//   //   console.log(blogPosts);
-
-//   return blogPosts;
-// });
-
 export const useQuery = routeLoader$(async () => {
-  const response = await fetch(`https://webapi.lccopen.tech/graphql`, {
-    method: 'POST',
-    headers: {
-      'Content-Type': 'application/json',
-      'Authorization': 'Bearer tu-token-de-autenticacion', // Si es necesario
-    },
-    body: JSON.stringify({
-      query: `
-        query BlogPosts {
-          posts {
-            nodes {
-              id
-              featuredImage {
-                node {
-                  guid
-                }
-              }
-              content(format: RENDERED)
-              slug
-              title(format: RENDERED)
-              date
-              tags {
-                nodes {
-                  name
-                }
-              }
-            }
-          }
-        }
-      `,
-    }),
-  });
-
-  const { data } = await response.json();
-  const blogPosts: BlogInterface[] = data.posts.nodes.map((elem: any) => ({
-    title: elem.title,
-    description: elem.content,
-    featuredImage: elem.featuredImage.node.guid,
-    postSlug: elem.slug,
-    tags: elem.tags.nodes.map((tag: any) => tag.name),
+  // const { data } = await client.query({
+  //   query: gql`
+  //     query BlogPosts {
+  //       posts {
+  //         nodes {
+  //           id
+  //           featuredImage {
+  //             node {
+  //               guid
+  //             }
+  //           }
+  //           content(format: RENDERED)
+  //           slug
+  //           title(format: RENDERED)
+  //           date
+  //           tags {
+  //             nodes {
+  //               name
+  //             }
+  //           }
+  //         }
+  //       }
+  //     }
+  //   `,
+  // });
+  const { results } = await fetch(
+    `https://cdn.builder.io/api/v3/content/${BUILDER_MODEL}?apiKey=${BUILDER_PUBLIC_API_KEY}&limit=0`
+  ).then((res) => res.json());
+  const data = results;
+  // console.log("Builder Content: ", data[1].data.tags['Default']);
+  // const blogPosts: BlogInterface[] = data.posts.nodes.map((elem: any) => ({
+  //   title: elem.title,
+  //   description: elem.content,
+  //   featuredImage: elem.featuredImage.node.guid,
+  //   postSlug: elem.slug,
+  //   tags: elem.tags.nodes.map((tag: any) => tag.name),
+  // }));
+  const blogPosts: BlogInterface[] = data.map((elem: any) => ({
+    title: elem.data.title['Default'],
+    description: elem.data.blurb['Default'],
+    featuredImage: elem.data.featuredImage,
+    postSlug: elem.data.url,
+    tags: elem.data?.tags['Default'],
   }));
+
+  //   console.log(blogPosts);
 
   return blogPosts;
 });
-
 //Sección de Blog
 
 export default component$(() => {
@@ -239,9 +207,7 @@ export default component$(() => {
                 id="search-tags"
                 class="block w-52 lg:w-full rounded-md bg-ot-light-gray pr-14 pl-2 py-1.5 text-sm sm:text-sm placeholder:text-sm placeholder:text-ot-black"
                 onInput$={(e) =>
-                  (searchStore.selectedTag = (
-                    e.target as HTMLSelectElement
-                  ).value)
+                  (searchStore.selectedTag = (e.target as HTMLSelectElement).value)
                 }
               >
                 <option value="">Todas las categorías</option>
