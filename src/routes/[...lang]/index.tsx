@@ -231,6 +231,7 @@ export default component$(() => {
 
   return (
     <div class="w-full">
+    test
       {/* Call to action */}
       <div class="max-w-[618px] lg:max-w-[1290px] mx-auto px-12 min-[618px]:px-0 lg:px-12 mb-16">
         <h1 class="text-xl lg:text-5xl xl:text-6xl font-bold tracking-tighter">
